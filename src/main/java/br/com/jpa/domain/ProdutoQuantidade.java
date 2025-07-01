@@ -27,8 +27,7 @@ public class ProdutoQuantidade {
             referencedColumnName = "id", nullable = false)
     private Venda venda;
 
-    // Getters e Setters
-
+    
     public Long getId() {
         return id;
     }

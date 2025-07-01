@@ -23,7 +23,7 @@ public class Cliente implements Persistente {
 	@Column(name = "TEL", nullable = false)
 	private Long tel;
 	
-	@Column(name = "Endereço", length = 100, nullable = false)
+	@Column(name = "Endereco", length = 100, nullable = false)
 	private String end;
 	
 	@Column (name = "Numero", nullable = false)

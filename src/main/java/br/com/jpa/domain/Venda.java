@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package br.com.jpa.domain;
 
 import java.math.BigDecimal;
@@ -6,12 +9,27 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 import br.com.jpa.dao.Persistente;
 
+
+
 @Entity
-@Table(name = "TB_Venda")
+@Table(name = "TB_VENDA")
 public class Venda implements Persistente {
 	
 	public enum Status {
@@ -27,22 +45,23 @@ public class Venda implements Persistente {
 		}
 	}
 	
-	
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="venda_seq")
 	@SequenceGenerator(name="venda_seq", sequenceName="sq_venda", initialValue = 1, allocationSize = 1)
 	private Long id;
-	
-	@Column(name = "Codigo", nullable = false, unique = true)
+
+	@Column(name = "codigo", nullable = false, unique = true)
 	private String codigo;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_cliente_fk", 
-			foreignKey = @ForeignKey(name = "fk_venda_cliente"),
-			referencedColumnName = "id", nullable = false)
+		foreignKey = @ForeignKey(name = "fk_venda_cliente"), 
+		referencedColumnName = "id", nullable = false
+	)
 	private Cliente cliente;
 	
-	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
+	
+	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL/*, fetch = FetchType.EAGER*/)
 	private Set<ProdutoQuantidade> produtos;
 	
 	@Column(name = "VALOR_TOTAL", nullable = false)
@@ -54,13 +73,9 @@ public class Venda implements Persistente {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "STATUS_VENDA", nullable = false)
 	private Status status;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
+	
+	public Venda() {
+		produtos = new HashSet<>();
 	}
 
 	public String getCodigo() {
@@ -83,35 +98,6 @@ public class Venda implements Persistente {
 		return produtos;
 	}
 
-	public void setProdutos(Set<ProdutoQuantidade> produtos) {
-		this.produtos = produtos;
-	}
-
-	public BigDecimal getValorTotal() {
-		return valorTotal;
-	}
-
-	public void setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
-	}
-
-	public Instant getDataVenda() {
-		return dataVenda;
-	}
-
-	public void setDataVenda(Instant dataVenda) {
-		this.dataVenda = dataVenda;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-	
-	
 	public void adicionarProduto(Produto produto, Integer quantidade) {
 		validarStatus();
 		Optional<ProdutoQuantidade> op = 
@@ -120,7 +106,6 @@ public class Venda implements Persistente {
 			ProdutoQuantidade produtpQtd = op.get();
 			produtpQtd.adicionar(quantidade);
 		} else {
-			
 			ProdutoQuantidade prod = new ProdutoQuantidade();
 			prod.setVenda(this);
 			prod.setProduto(produto);
@@ -129,9 +114,7 @@ public class Venda implements Persistente {
 		}
 		recalcularValorTotalVenda();
 	}
-	
-	
-	
+
 	private void validarStatus() {
 		if (this.status == Status.CONCLUIDA) {
 			throw new UnsupportedOperationException("IMPOSSÍVEL ALTERAR VENDA FINALIZADA");
@@ -156,7 +139,6 @@ public class Venda implements Persistente {
 		}
 	}
 	
-	
 	public void removerTodosProdutos() {
 		validarStatus();
 		produtos.clear();
@@ -170,16 +152,50 @@ public class Venda implements Persistente {
 	}
 	
 	public void recalcularValorTotalVenda() {
+		
 		BigDecimal valorTotal = BigDecimal.ZERO;
 		for (ProdutoQuantidade prod : this.produtos) {
 			valorTotal = valorTotal.add(prod.getValorTotal());
 		}
 		this.valorTotal = valorTotal;
 	}
-	
-	public Venda() {
-	    this.produtos = new HashSet<>();
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
 	}
 
+	public Instant getDataVenda() {
+		return dataVenda;
+	}
 
+	public void setDataVenda(Instant dataVenda) {
+		this.dataVenda = dataVenda;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+
+	public void setProdutos(Set<ProdutoQuantidade> produtos) {
+		this.produtos = produtos;
+	}
+	
+	
+	
 }

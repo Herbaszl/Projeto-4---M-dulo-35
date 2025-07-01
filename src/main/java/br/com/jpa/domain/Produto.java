@@ -19,7 +19,7 @@ public class Produto implements Persistente {
 	@Column(name = "Nome", length = 100, nullable = false)
 	private String nome;
 	
-	@Column(name = "Código", nullable = false, unique = true)
+	@Column(name = "codigo", nullable = false, unique = true)
 	private String codigo;
 	
 	@Column(name = "Descrição", length = 200, nullable = false)
